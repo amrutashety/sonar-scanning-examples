@@ -90,7 +90,7 @@ jobs:
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cd sonarqube-scanner-maven/maven-basic
+        cd sonar-scanner-maven/maven-basic
         mvn clean package -DskipTests
 
     - name: Perform CodeQL Analysis
