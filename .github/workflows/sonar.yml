@@ -27,4 +27,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd sonar-scanner-maven/maven-basic
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=<YOUR_PROJECT_KEY_FROM_SONARCLOUD>
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=amrutashety_sonar-scanning-examples
