@@ -1,4 +1,4 @@
-name: SonarQube
+name: SonarCloud
 on:
   push:
     branches:
@@ -12,27 +12,49 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 21
-        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@cbd1393a1b91e264a66a3b7f55ff5f05b6d2a9c4 # v4.3.1
         with:
-          java-version: 21
-          distribution: 'zulu' # Alternative distribution options are available.
+          dotnet-version: '8.0.x'
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
       - name: Cache SonarQube packages
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
+
+      - name: Cache NuGet packages
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln', '**/packages.lock.json') }}
+          restore-keys: ${{ runner.os }}-nuget
+
+      - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd sonar-scanner-maven/maven-basic 
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=amrutashety_sonar-scanning-examples
+          cd sonar-scanner-dotnet
+          dotnet sonarscanner begin \
+            /k:"amrutashety_sonar-scanning-examples" \
+            /o:"amrutashety" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="${SONAR_TOKEN}"
+
+      - name: Build
+        run: |
+          cd sonar-scanner-dotnet
+          dotnet build --configuration Release
+
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd sonar-scanner-dotnet
+          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
