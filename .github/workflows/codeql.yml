@@ -41,7 +41,7 @@ jobs:
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cd sonar-scanner-dotnet
+        cd sonar-scanner-dotnet/CSharpProject
         dotnet build --configuration Release
 
     - name: Perform CodeQL Analysis
