@@ -40,7 +40,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd sonar-scanner-dotnet
+          cd sonar-scanner-dotnet/CSharpProject
           dotnet sonarscanner begin \
             /k:"amrutashety_sonar-scanning-examples" \
             /o:"amrutashety" \
@@ -49,12 +49,12 @@ jobs:
 
       - name: Build
         run: |
-          cd sonar-scanner-dotnet
+          cd sonar-scanner-dotnet/CSharpProject
           dotnet build --configuration Release
 
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd sonar-scanner-dotnet
+          cd sonar-scanner-dotnet/CSharpProject
           dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
